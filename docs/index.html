@@ -1,0 +1,690 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Agricultural Supply Chain Management System</title>
+<meta name="description" content="BTech Java project: Java Applet UI, JDBC + MySQL, Collections, custom exceptions and multithreading for a farm-to-customer supply chain.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f6f1e7;
+  --surface: #fffaf0;
+  --surface-2: #efe6d4;
+  --ink: #2a2318;
+  --ink-soft: #5f5443;
+  --line: #ddd0b8;
+  --leaf: #3f6b35;
+  --leaf-soft: #e3ecd9;
+  --wheat: #c8952f;
+  --wheat-soft: #f5e6c4;
+  --soil: #7a4a2a;
+  --alert: #a8442a;
+  --alert-soft: #f6ddd3;
+  --radius-sm: 6px;
+  --radius-lg: 14px;
+  --shadow: 0 1px 0 rgba(42, 35, 24, .06), 0 8px 24px -12px rgba(42, 35, 24, .18);
+  --font-display: "Fraunces", Georgia, serif;
+  --font-body: "Inter", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", Consolas, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #17140f;
+    --surface: #211c15;
+    --surface-2: #2b251c;
+    --ink: #f1e9da;
+    --ink-soft: #b9ab92;
+    --line: #3b3326;
+    --leaf: #8fbf7a;
+    --leaf-soft: #23301e;
+    --wheat: #e2b65a;
+    --wheat-soft: #3a2f19;
+    --soil: #d49a6c;
+    --alert: #e58b6e;
+    --alert-soft: #3a211a;
+    --shadow: 0 1px 0 rgba(0, 0, 0, .3), 0 10px 28px -14px rgba(0, 0, 0, .7);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #17140f; --surface: #211c15; --surface-2: #2b251c; --ink: #f1e9da;
+  --ink-soft: #b9ab92; --line: #3b3326; --leaf: #8fbf7a; --leaf-soft: #23301e;
+  --wheat: #e2b65a; --wheat-soft: #3a2f19; --soil: #d49a6c; --alert: #e58b6e;
+  --alert-soft: #3a211a; --shadow: 0 1px 0 rgba(0,0,0,.3), 0 10px 28px -14px rgba(0,0,0,.7);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font: 16px/1.6 var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+a { color: var(--leaf); text-underline-offset: 3px; }
+a:hover { color: var(--soil); }
+:focus-visible { outline: 2px solid var(--wheat); outline-offset: 3px; border-radius: 4px; }
+code, .mono { font-family: var(--font-mono); font-size: .88em; }
+code { background: var(--surface-2); padding: .1em .35em; border-radius: 4px; }
+
+.wrap { max-width: 1080px; margin: 0 auto; padding: 0 16px; }
+@media (min-width: 720px) { .wrap { padding: 0 32px; } }
+
+/* ---------- nav ---------- */
+.nav {
+  position: sticky; top: 0; z-index: 10;
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--line);
+}
+.nav .wrap { display: flex; align-items: center; gap: 20px; height: 56px; }
+.brand { font-family: var(--font-display); font-weight: 700; font-size: 1.05rem; color: var(--ink); text-decoration: none; white-space: nowrap; }
+.nav-links { display: none; gap: 18px; margin-left: auto; font-size: .9rem; }
+.nav-links a { color: var(--ink-soft); text-decoration: none; }
+.nav-links a:hover { color: var(--ink); }
+@media (min-width: 860px) { .nav-links { display: flex; } }
+.nav-cta { margin-left: auto; }
+@media (min-width: 860px) { .nav-cta { margin-left: 0; } }
+
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 10px 18px; border-radius: 999px;
+  font: 600 .92rem var(--font-body); text-decoration: none;
+  border: 1px solid transparent; transition: transform .15s ease, background-color .15s ease;
+}
+.btn:active { transform: translateY(1px); }
+.btn-primary { background: var(--leaf); color: var(--surface); }
+.btn-primary:hover { background: var(--soil); color: var(--surface); }
+.btn-ghost { border-color: var(--line); color: var(--ink); background: var(--surface); }
+.btn-ghost:hover { border-color: var(--wheat); color: var(--ink); }
+.btn-sm { padding: 6px 14px; font-size: .85rem; }
+
+/* ---------- hero ---------- */
+.hero { padding: 64px 0 40px; }
+.eyebrow {
+  display: inline-block; font: 500 .78rem var(--font-mono); letter-spacing: .08em;
+  text-transform: uppercase; color: var(--soil);
+}
+.hero h1 {
+  font-family: var(--font-display); font-weight: 700;
+  font-size: clamp(2.2rem, 1.2rem + 4.4vw, 4.2rem); line-height: 1.04;
+  letter-spacing: -.02em; margin: 14px 0 18px; max-width: 16ch;
+}
+.hero h1 em { font-style: normal; color: var(--leaf); }
+.lede { font-size: 1.12rem; color: var(--ink-soft); max-width: 60ch; margin: 0 0 28px; }
+.hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 36px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip {
+  font: 500 .8rem var(--font-mono); padding: 5px 11px; border-radius: 999px;
+  background: var(--surface); border: 1px solid var(--line); color: var(--ink-soft);
+}
+.chip.ok { background: var(--leaf-soft); border-color: transparent; color: var(--leaf); }
+
+.notice {
+  margin-top: 36px; display: flex; gap: 14px; align-items: flex-start;
+  padding: 16px 18px; border-radius: var(--radius-lg);
+  background: var(--wheat-soft); border-left: 4px solid var(--wheat);
+  font-size: .95rem;
+}
+.notice strong { display: block; margin-bottom: 2px; }
+
+/* ---------- sections ---------- */
+section { padding: 56px 0; border-top: 1px solid var(--line); }
+.sec-head { margin-bottom: 28px; max-width: 64ch; }
+.sec-head .eyebrow { margin-bottom: 6px; }
+h2 {
+  font-family: var(--font-display); font-weight: 700;
+  font-size: clamp(1.6rem, 1.2rem + 1.6vw, 2.3rem); line-height: 1.15;
+  letter-spacing: -.01em; margin: 4px 0 10px;
+}
+.sec-head p { color: var(--ink-soft); margin: 0; }
+h3 { font-size: 1.02rem; margin: 0 0 6px; }
+
+/* ---------- supply chain flow ---------- */
+.flow {
+  list-style: none; margin: 0; padding: 0;
+  display: grid; gap: 10px; grid-template-columns: 1fr;
+  counter-reset: step;
+}
+@media (min-width: 640px) { .flow { grid-template-columns: repeat(4, 1fr); } }
+@media (min-width: 980px) { .flow { grid-template-columns: repeat(7, 1fr); } }
+.flow li {
+  position: relative; background: var(--surface); border: 1px solid var(--line);
+  border-radius: var(--radius-sm); padding: 14px 12px 12px; counter-increment: step;
+}
+.flow li::before {
+  content: counter(step, decimal-leading-zero);
+  font: 500 .72rem var(--font-mono); color: var(--wheat);
+}
+.flow b { display: block; font-size: .98rem; margin: 2px 0 4px; }
+.flow span { font-size: .82rem; color: var(--ink-soft); line-height: 1.4; display: block; }
+.flow li.end { background: var(--leaf-soft); border-color: transparent; }
+
+/* ---------- role grid ---------- */
+.roles { display: grid; gap: 14px; grid-template-columns: 1fr; }
+@media (min-width: 720px) { .roles { grid-template-columns: repeat(2, 1fr); } }
+.role {
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-lg);
+  padding: 22px; box-shadow: var(--shadow);
+}
+.role header { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+.role h3 { font-family: var(--font-display); font-size: 1.3rem; margin: 0; }
+.role .panel { font: .78rem var(--font-mono); color: var(--ink-soft); }
+.role ul { margin: 0; padding-left: 18px; color: var(--ink-soft); font-size: .94rem; }
+.role li { margin: 3px 0; }
+
+/* ---------- architecture ---------- */
+.arch { display: grid; gap: 24px; grid-template-columns: 1fr; align-items: start; }
+@media (min-width: 900px) { .arch { grid-template-columns: 1.1fr 1fr; } }
+.layers { display: flex; flex-direction: column; gap: 0; }
+.layer {
+  display: grid; grid-template-columns: 110px 1fr; gap: 14px; align-items: center;
+  padding: 14px 16px; background: var(--surface); border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+}
+.layer + .arrow { height: 22px; margin-left: 62px; border-left: 2px dashed var(--line); }
+.layer .tag { font: 600 .78rem var(--font-mono); text-transform: uppercase; letter-spacing: .06em; color: var(--soil); }
+.layer .what b { display: block; font-size: .95rem; }
+.layer .what span { font-size: .84rem; color: var(--ink-soft); }
+.layer.db { background: var(--leaf-soft); border-color: transparent; }
+.side-note {
+  background: var(--surface-2); border-radius: var(--radius-lg); padding: 22px;
+}
+.side-note h3 { font-family: var(--font-display); font-size: 1.2rem; }
+.side-note ul { margin: 8px 0 0; padding-left: 18px; font-size: .94rem; color: var(--ink-soft); }
+.side-note li { margin: 6px 0; }
+
+/* ---------- workflow timeline ---------- */
+.timeline { list-style: none; margin: 0; padding: 0; position: relative; }
+.timeline::before { content: ""; position: absolute; left: 15px; top: 6px; bottom: 6px; width: 2px; background: var(--line); }
+.timeline li { position: relative; padding: 0 0 22px 50px; }
+.timeline .dot {
+  position: absolute; left: 4px; top: 2px; width: 24px; height: 24px; border-radius: 50%;
+  background: var(--surface); border: 2px solid var(--leaf);
+  font: 600 .72rem/20px var(--font-mono); text-align: center; color: var(--leaf);
+}
+.timeline .thread { display: inline-block; font: 500 .72rem var(--font-mono); background: var(--wheat-soft); color: var(--soil); padding: 1px 8px; border-radius: 999px; margin-left: 6px; vertical-align: 2px; }
+.timeline p { margin: 2px 0 0; color: var(--ink-soft); font-size: .94rem; }
+.timeline li.fail .dot { border-color: var(--alert); color: var(--alert); }
+.timeline li.fail { padding-bottom: 0; }
+.fail-box { background: var(--alert-soft); border-radius: var(--radius-sm); padding: 12px 14px; margin-top: 6px; }
+
+/* ---------- concurrency ---------- */
+.race { display: grid; gap: 16px; grid-template-columns: 1fr; }
+@media (min-width: 860px) { .race { grid-template-columns: 1fr 1fr 1fr; } }
+.guard { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-lg); padding: 20px; }
+.guard .num { font: 700 2rem var(--font-display); color: var(--wheat); line-height: 1; }
+.guard h3 { margin-top: 10px; }
+.guard p { color: var(--ink-soft); font-size: .92rem; margin: 6px 0 0; }
+pre {
+  margin: 12px 0 0; padding: 12px 14px; border-radius: var(--radius-sm);
+  background: var(--surface-2); overflow-x: auto; font: .8rem/1.55 var(--font-mono); color: var(--ink);
+}
+.proof {
+  margin-top: 18px; display: grid; gap: 18px; grid-template-columns: 1fr; align-items: center;
+  background: var(--leaf-soft); border-radius: var(--radius-lg); padding: 22px;
+}
+@media (min-width: 760px) { .proof { grid-template-columns: 1.2fr 1fr; } }
+.proof h3 { font-family: var(--font-display); font-size: 1.25rem; }
+.proof p { margin: 4px 0 0; color: var(--ink-soft); font-size: .94rem; }
+.stock-bar { display: flex; height: 34px; border-radius: var(--radius-sm); overflow: hidden; font: 600 .78rem var(--font-mono); }
+.stock-bar div { display: flex; align-items: center; justify-content: center; }
+.stock-bar .sold { flex: 90; background: var(--leaf); color: var(--surface); }
+.stock-bar .left { flex: 10; background: var(--wheat); color: var(--ink); min-width: 44px; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 8px; font-size: .82rem; color: var(--ink-soft); }
+.orders { display: grid; grid-template-columns: repeat(10, 1fr); gap: 4px; margin-top: 14px; }
+.orders span { height: 26px; border-radius: 4px; font: 600 .7rem/26px var(--font-mono); text-align: center; }
+.orders .c { background: var(--leaf); color: var(--surface); }
+.orders .x { background: var(--alert-soft); color: var(--alert); }
+
+/* ---------- database ---------- */
+.tables { display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+.tbl { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 12px 14px; }
+.tbl b { font-family: var(--font-mono); font-size: .9rem; }
+.tbl span { display: block; font-size: .82rem; color: var(--ink-soft); margin-top: 3px; line-height: 1.45; }
+.er { margin-top: 16px; }
+
+/* ---------- concepts ---------- */
+.concepts { display: grid; gap: 14px; grid-template-columns: 1fr; }
+@media (min-width: 720px) { .concepts { grid-template-columns: repeat(2, 1fr); } }
+.concept { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-lg); padding: 20px; }
+.concept h3 { font-family: var(--font-display); font-size: 1.2rem; }
+.concept dl { margin: 10px 0 0; display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; font-size: .9rem; }
+.concept dt { font-family: var(--font-mono); font-size: .8rem; color: var(--soil); padding-top: 2px; }
+.concept dd { margin: 0; color: var(--ink-soft); }
+
+/* ---------- tests ---------- */
+.test-summary { display: flex; flex-wrap: wrap; gap: 28px; margin-bottom: 20px; }
+.stat b { display: block; font: 700 2.4rem/1 var(--font-display); color: var(--leaf); }
+.stat span { font-size: .85rem; color: var(--ink-soft); }
+.tests { display: grid; gap: 6px; grid-template-columns: 1fr; }
+@media (min-width: 760px) { .tests { grid-template-columns: 1fr 1fr; } }
+.test { display: flex; gap: 10px; align-items: baseline; padding: 8px 12px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-sm); font-size: .88rem; }
+.test .n { font: 500 .75rem var(--font-mono); color: var(--ink-soft); min-width: 22px; }
+.test .pass { margin-left: auto; font: 600 .7rem var(--font-mono); color: var(--leaf); }
+.test.extra { border-style: dashed; }
+
+/* ---------- run ---------- */
+.steps { counter-reset: s; list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; }
+.steps li { counter-increment: s; display: grid; grid-template-columns: 34px 1fr; gap: 12px; }
+.steps li::before {
+  content: counter(s); width: 30px; height: 30px; border-radius: 50%;
+  background: var(--ink); color: var(--bg); font: 600 .85rem/30px var(--font-mono); text-align: center;
+}
+.steps p { margin: 4px 0 0; color: var(--ink-soft); font-size: .94rem; }
+.logins { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: .9rem; background: var(--surface); border-radius: var(--radius-sm); overflow: hidden; }
+.logins th, .logins td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line); }
+.logins th { font: 600 .75rem var(--font-mono); text-transform: uppercase; letter-spacing: .05em; color: var(--ink-soft); background: var(--surface-2); }
+.table-scroll { overflow-x: auto; }
+
+footer { padding: 36px 0 56px; border-top: 1px solid var(--line); color: var(--ink-soft); font-size: .88rem; }
+footer .wrap { display: flex; flex-wrap: wrap; gap: 12px 28px; justify-content: space-between; }
+
+.theme-toggle {
+  border: 1px solid var(--line); background: var(--surface); color: var(--ink);
+  width: 36px; height: 36px; border-radius: 50%; cursor: pointer; font-size: 1rem; flex: none;
+}
+.theme-toggle:hover { border-color: var(--wheat); }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .btn { transition: none; }
+}
+</style>
+</head>
+<body>
+
+<nav class="nav" aria-label="Main">
+  <div class="wrap">
+    <a class="brand" href="#top">AgriSupply</a>
+    <div class="nav-links">
+      <a href="#flow">Flow</a>
+      <a href="#architecture">Architecture</a>
+      <a href="#workflow">Order workflow</a>
+      <a href="#concurrency">Concurrency</a>
+      <a href="#database">Database</a>
+      <a href="#tests">Tests</a>
+      <a href="#run">Run it</a>
+    </div>
+    <a class="btn btn-primary btn-sm nav-cta" href="https://github.com/Shaurya-web548/agricultural-supply-chain">Source code</a>
+    <button class="theme-toggle" type="button" aria-label="Toggle dark mode" id="themeToggle">◐</button>
+  </div>
+</nav>
+
+<main id="top">
+  <header class="hero">
+    <div class="wrap">
+      <span class="eyebrow">BTech Java project · Object-Oriented Programming</span>
+      <h1>Agricultural Supply Chain <em>Management System</em></h1>
+      <p class="lede">
+        A desktop application that follows produce from the farm to the customer.
+        Farmers list crops, distributors buy wholesale, and customers order. Background
+        threads check stock, update inventory and create shipments, with everything
+        stored in MySQL.
+      </p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="https://github.com/Shaurya-web548/agricultural-supply-chain">View the code on GitHub</a>
+        <a class="btn btn-ghost" href="https://github.com/Shaurya-web548/agricultural-supply-chain/blob/main/docs/VIVA_QA.md">Viva questions &amp; answers</a>
+      </div>
+      <div class="chips" aria-label="Technology">
+        <span class="chip">Java 8</span>
+        <span class="chip">Java Applet (JApplet + Swing)</span>
+        <span class="chip">JDBC</span>
+        <span class="chip">MySQL 8</span>
+        <span class="chip">Collections</span>
+        <span class="chip">Custom exceptions</span>
+        <span class="chip">Multithreading</span>
+        <span class="chip ok">22 / 22 tests passing</span>
+      </div>
+
+      <div class="notice" role="note">
+        <div>
+          <strong>This page describes the project. The app itself runs on a PC.</strong>
+          It is a Java Applet desktop program that connects directly to a local MySQL database,
+          as the course specification requires. Browsers no longer run applets, so it can't run
+          from a web link. See <a href="#run">how to run it</a>.
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <section id="flow">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="eyebrow">The supply chain</span>
+        <h2>From the field to the front door</h2>
+        <p>Each step is a real table and a real piece of code, not just a picture.</p>
+      </div>
+      <ol class="flow">
+        <li><b>Farmer</b><span>registers and lists crops</span></li>
+        <li><b>Product</b><span>name, category, unit, price</span></li>
+        <li><b>Inventory</b><span>available quantity, can never go negative</span></li>
+        <li><b>Distributor</b><span>searches and buys wholesale</span></li>
+        <li><b>Order</b><span>processed on a background thread</span></li>
+        <li><b>Shipment</b><span>unique tracking number, status updates</span></li>
+        <li class="end"><b>Customer</b><span>orders, tracks, receives</span></li>
+      </ol>
+    </div>
+  </section>
+
+  <section id="modules">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="eyebrow">Modules</span>
+        <h2>Four roles, one login screen</h2>
+        <p>One applet switches between role panels with a <code>CardLayout</code>, depending on who logs in.</p>
+      </div>
+      <div class="roles">
+        <article class="role">
+          <header><h3>Admin</h3><span class="panel">AdminPanel</span></header>
+          <ul>
+            <li>View farmers, distributors and customers</li>
+            <li>Products, inventory, all orders and shipments</li>
+            <li>Statistics: counts, total stock, revenue</li>
+          </ul>
+        </article>
+        <article class="role">
+          <header><h3>Farmer</h3><span class="panel">FarmerPanel</span></header>
+          <ul>
+            <li>Register / log in, add and update products</li>
+            <li>Set available quantity (runs on a background thread)</li>
+            <li>See and advance only orders containing <em>their</em> products</li>
+          </ul>
+        </article>
+        <article class="role">
+          <header><h3>Distributor</h3><span class="panel">DistributorPanel</span></header>
+          <ul>
+            <li>Search products and make wholesale purchases</li>
+            <li>View inventory and order history</li>
+            <li>Create and update shipments; start/stop the live tracker thread</li>
+          </ul>
+        </article>
+        <article class="role">
+          <header><h3>Customer</h3><span class="panel">CustomerPanel</span></header>
+          <ul>
+            <li>Register / log in, browse and search products</li>
+            <li>Place orders; history shows status and tracking number</li>
+            <li>Track a shipment by its tracking number</li>
+          </ul>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section id="architecture">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="eyebrow">Architecture</span>
+        <h2>Layers that each do one job</h2>
+        <p>The UI never touches SQL. Each layer only calls the one below it.</p>
+      </div>
+      <div class="arch">
+        <div class="layers" aria-label="Layer diagram">
+          <div class="layer"><span class="tag">UI</span><div class="what"><b>applet/</b><span>MainApplet + Login, Admin, Farmer, Distributor and Customer panels</span></div></div>
+          <div class="arrow" aria-hidden="true"></div>
+          <div class="layer"><span class="tag">Service</span><div class="what"><b>service/</b><span>Validation, business rules, ownership checks, payments; starts threads</span></div></div>
+          <div class="arrow" aria-hidden="true"></div>
+          <div class="layer"><span class="tag">DAO</span><div class="what"><b>dao/</b><span>The only layer with SQL: <code>PreparedStatement</code> + try-with-resources</span></div></div>
+          <div class="arrow" aria-hidden="true"></div>
+          <div class="layer"><span class="tag">JDBC</span><div class="what"><b>database/DBConnection</b><span>Reads <code>db.properties</code> once; no hard-coded credentials</span></div></div>
+          <div class="arrow" aria-hidden="true"></div>
+          <div class="layer db"><span class="tag">MySQL</span><div class="what"><b>agricultural_supply_chain</b><span>10 normalised tables with PK, FK, UNIQUE, CHECK, DEFAULT</span></div></div>
+        </div>
+        <aside class="side-note">
+          <h3>Packages</h3>
+          <ul>
+            <li><code>model/</code>: User, Farmer, Distributor, Customer, Product, Inventory, Order, OrderItem, Shipment</li>
+            <li><code>dao/</code>: UserDAO, ProductDAO, InventoryDAO, OrderDAO, ShipmentDAO</li>
+            <li><code>service/</code>: UserService, ProductService, InventoryService, OrderService, ShipmentService</li>
+            <li><code>exceptions/</code>: InvalidLogin, ProductNotFound, InsufficientStock, Database, InvalidOrder</li>
+            <li><code>threads/</code>: OrderProcessingThread, InventoryUpdateThread, ShipmentTrackingThread</li>
+          </ul>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <section id="workflow">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="eyebrow">Order workflow</span>
+        <h2>What happens when a customer clicks “Place order”</h2>
+        <p>The window stays responsive: the heavy work happens on <code>OrderProcessingThread</code>.</p>
+      </div>
+      <ol class="timeline">
+        <li><span class="dot">1</span><b>Validate &amp; save</b>
+          <p><code>OrderService.placeOrder()</code> checks every line, prices it from a <code>HashMap</code> product cache, and saves the order (PENDING), its items and a payment (PENDING).</p></li>
+        <li><span class="dot">2</span><b>Hand off to a thread</b><span class="thread">OrderProcessingThread</span>
+          <p>A background thread starts and the UI returns immediately.</p></li>
+        <li><span class="dot">3</span><b>Claim the order</b>
+          <p>One conditional UPDATE moves it PENDING → PROCESSING, so the same order can never be processed twice.</p></li>
+        <li><span class="dot">4</span><b>Reduce stock safely</b>
+          <p>Each line runs <code>quantity - ? WHERE quantity &gt;= ?</code>. If no row is updated, there isn't enough stock.</p></li>
+        <li><span class="dot">5</span><b>Confirm</b>
+          <p>The order becomes CONFIRMED, the payment PAID, and a shipment is created with a unique <code>TRK-</code> number.</p></li>
+        <li><span class="dot">6</span><b>Ship &amp; deliver</b><span class="thread">ShipmentTrackingThread</span>
+          <p>The distributor (or the tracker thread) moves the shipment IN_TRANSIT → OUT_FOR_DELIVERY → DELIVERED, and the order follows: SHIPPED → DELIVERED.</p></li>
+        <li class="fail"><span class="dot">!</span><b>If anything fails</b>
+          <div class="fail-box">Not enough stock (<code>InsufficientStockException</code>) or a database error (<code>DatabaseException</code>): any stock already taken is returned, the order is CANCELLED and the payment FAILED. Nothing is left half-done.</div></li>
+      </ol>
+    </div>
+  </section>
+
+  <section id="concurrency">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="eyebrow">Synchronization</span>
+        <h2>Two buyers, one last sack of wheat</h2>
+        <p>If two threads both read “10 left” and both sell 10, stock goes negative. That is a race condition, and three layers prevent it.</p>
+      </div>
+      <div class="race">
+        <div class="guard"><span class="num">1</span><h3><code>synchronized</code> lock</h3>
+          <p>Inside one program, only one thread changes stock at a time.</p>
+          <pre>synchronized (INVENTORY_LOCK) {
+  ... reduceStock ...
+}</pre></div>
+        <div class="guard"><span class="num">2</span><h3>Conditional UPDATE</h3>
+          <p>The check and the change happen in one SQL statement, so even two app windows (two separate JVMs) can't oversell.</p>
+          <pre>UPDATE inventory
+SET quantity_available =
+    quantity_available - ?
+WHERE product_id = ?
+  AND quantity_available &gt;= ?</pre></div>
+        <div class="guard"><span class="num">3</span><h3>Database CHECK</h3>
+          <p>MySQL itself refuses a negative stock value: the final safety net.</p>
+          <pre>CHECK (quantity_available &gt;= 0)</pre></div>
+      </div>
+      <div class="proof">
+        <div>
+          <h3>Proven by a test</h3>
+          <p><code>concurrentOrdersNeverOversell</code> fires 10 orders of 15 units at the same instant with only 100 in stock.
+          Exactly 6 are confirmed, 4 are cancelled, and stock ends at exactly 10.</p>
+          <div class="orders" aria-label="10 orders: 6 confirmed, 4 cancelled">
+            <span class="c">✓</span><span class="c">✓</span><span class="c">✓</span><span class="c">✓</span><span class="c">✓</span><span class="c">✓</span>
+            <span class="x">✕</span><span class="x">✕</span><span class="x">✕</span><span class="x">✕</span>
+          </div>
+        </div>
+        <div>
+          <div class="stock-bar" role="img" aria-label="Stock: 90 of 100 units sold, 10 left">
+            <div class="sold">90 sold (6 × 15)</div><div class="left">10</div>
+          </div>
+          <div class="legend"><span>Starting stock: 100 units</span><span>Never below 0</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="database">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="eyebrow">Database design</span>
+        <h2>Ten tables, normalised</h2>
+        <p>Database <code>agricultural_supply_chain</code>. Foreign keys mean an order item can never point at a product that doesn't exist.</p>
+      </div>
+      <div class="tables">
+        <div class="tbl"><b>users</b><span>login for every role; username &amp; email UNIQUE</span></div>
+        <div class="tbl"><b>farmers</b><span>1:1 with users; owns many products</span></div>
+        <div class="tbl"><b>distributors</b><span>1:1 with users; licence UNIQUE</span></div>
+        <div class="tbl"><b>customers</b><span>1:1 with users; places many orders</span></div>
+        <div class="tbl"><b>products</b><span>FK farmer; CHECK price &gt; 0; ACTIVE / INACTIVE</span></div>
+        <div class="tbl"><b>inventory</b><span>1:1 with product; CHECK quantity ≥ 0</span></div>
+        <div class="tbl"><b>orders</b><span>FK customer, optional distributor; status DEFAULT 'PENDING'</span></div>
+        <div class="tbl"><b>order_items</b><span>links orders ↔ products; stores the price at order time</span></div>
+        <div class="tbl"><b>shipments</b><span>1:1 with order; tracking number UNIQUE</span></div>
+        <div class="tbl"><b>payments</b><span>1:1 with order; PENDING → PAID / FAILED</span></div>
+      </div>
+      <pre class="er" aria-label="Entity relationship summary">users 1──1 farmers 1──∞ products 1──1 inventory
+users 1──1 distributors 1──∞ orders            (optional link)
+users 1──1 customers    1──∞ orders 1──∞ order_items ∞──1 products
+                              orders 1──1 shipments
+                              orders 1──1 payments</pre>
+    </div>
+  </section>
+
+  <section id="concepts">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="eyebrow">Java concepts</span>
+        <h2>Where each required concept lives</h2>
+      </div>
+      <div class="concepts">
+        <div class="concept">
+          <h3>JDBC</h3>
+          <dl>
+            <dt>Connection</dt><dd><code>DBConnection.getConnection()</code> via <code>DriverManager</code></dd>
+            <dt>PreparedStatement</dt><dd>every query uses <code>?</code> placeholders, so SQL injection is blocked (test 7)</dd>
+            <dt>ResultSet</dt><dd>mapped to model objects in each DAO</dd>
+            <dt>SQLException</dt><dd>wrapped in the custom <code>DatabaseException</code></dd>
+          </dl>
+        </div>
+        <div class="concept">
+          <h3>Collections</h3>
+          <dl>
+            <dt>ArrayList</dt><dd>query results and an order's line items</dd>
+            <dt>HashMap</dt><dd>product cache for O(1) pricing; cart; status state machine</dd>
+            <dt>HashSet</dt><dd>“is this order mine?” checks; tracker's finished shipments</dd>
+            <dt>Set</dt><dd>valid shipment statuses, checked before any SQL</dd>
+          </dl>
+        </div>
+        <div class="concept">
+          <h3>Exception handling</h3>
+          <dl>
+            <dt>try / catch</dt><dd>every UI action shows a friendly message</dd>
+            <dt>finally</dt><dd>all three threads always report that they finished</dd>
+            <dt>try-with-resources</dt><dd>every DAO closes Connection, statement and ResultSet</dd>
+            <dt>throw / throws</dt><dd>five custom checked exceptions + multi-catch and rethrow</dd>
+          </dl>
+        </div>
+        <div class="concept">
+          <h3>Multithreading</h3>
+          <dl>
+            <dt>OrderProcessing</dt><dd>stock check, update, confirm and shipment, off the UI thread</dd>
+            <dt>InventoryUpdate</dt><dd>farmer's quantity change in the background</dd>
+            <dt>ShipmentTracking</dt><dd>carrier simulation; clean stop with <code>volatile</code> + <code>interrupt()</code></dd>
+            <dt>synchronized</dt><dd>prevents overselling: see above</dd>
+          </dl>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="tests">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="eyebrow">Testing</span>
+        <h2>22 JUnit tests, all passing</h2>
+        <p>They run against a separate test database, so demo data is never touched. Dashed rows are extra integrity tests beyond the 15 required.</p>
+      </div>
+      <div class="test-summary">
+        <div class="stat"><b>22</b><span>tests run</span></div>
+        <div class="stat"><b>0</b><span>failures</span></div>
+        <div class="stat"><b>15</b><span>required cases covered</span></div>
+      </div>
+      <div class="tests">
+        <div class="test"><span class="n">01</span>User registration<span class="pass">PASS</span></div>
+        <div class="test"><span class="n">02</span>Login<span class="pass">PASS</span></div>
+        <div class="test"><span class="n">03</span>Invalid login<span class="pass">PASS</span></div>
+        <div class="test"><span class="n">04</span>Add product<span class="pass">PASS</span></div>
+        <div class="test"><span class="n">05</span>Update product<span class="pass">PASS</span></div>
+        <div class="test"><span class="n">06</span>Delete product<span class="pass">PASS</span></div>
+        <div class="test"><span class="n">07</span>Product search + SQL injection blocked<span class="pass">PASS</span></div>
+        <div class="test"><span class="n">08</span>Place order (background thread)<span class="pass">PASS</span></div>
+        <div class="test"><span class="n">09</span>Insufficient inventory<span class="pass">PASS</span></div>
+        <div class="test"><span class="n">10</span>Inventory update<span class="pass">PASS</span></div>
+        <div class="test"><span class="n">11</span>Order processing workflow<span class="pass">PASS</span></div>
+        <div class="test"><span class="n">12</span>Shipment creation<span class="pass">PASS</span></div>
+        <div class="test"><span class="n">13</span>Shipment tracking<span class="pass">PASS</span></div>
+        <div class="test"><span class="n">14</span>Invalid input<span class="pass">PASS</span></div>
+        <div class="test"><span class="n">15</span>Database failure<span class="pass">PASS</span></div>
+        <div class="test extra"><span class="n">16</span>10 concurrent orders never oversell<span class="pass">PASS</span></div>
+        <div class="test extra"><span class="n">17</span>Concurrent restocks are not lost<span class="pass">PASS</span></div>
+        <div class="test extra"><span class="n">18</span>Processing an order twice is a no-op<span class="pass">PASS</span></div>
+        <div class="test extra"><span class="n">19</span>Payment follows order outcome<span class="pass">PASS</span></div>
+        <div class="test extra"><span class="n">20</span>Shipment progress updates the order<span class="pass">PASS</span></div>
+        <div class="test extra"><span class="n">21</span>Deleting an ordered product keeps history<span class="pass">PASS</span></div>
+        <div class="test extra"><span class="n">22</span>Farmers can't change others' data<span class="pass">PASS</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="run">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="eyebrow">Run it</span>
+        <h2>Run it on your own PC</h2>
+        <p>Needs JDK 8, Maven 3.9 and MySQL 8. Full instructions are in the <a href="https://github.com/Shaurya-web548/agricultural-supply-chain#readme">README</a>.</p>
+      </div>
+      <ol class="steps">
+        <li><div><b>Get the code</b><p><code>git clone https://github.com/Shaurya-web548/agricultural-supply-chain.git</code></p></div></li>
+        <li><div><b>Create the database</b><p>Run <code>sql/schema.sql</code>, <code>sql/seed_data.sql</code> and <code>sql/app_user.sql</code> in MySQL (choose your own password in <code>app_user.sql</code> first).</p></div></li>
+        <li><div><b>Add credentials</b><p>Copy <code>db.properties.example</code> to <code>db.properties</code> and enter that password.</p></div></li>
+        <li><div><b>Build</b><p><code>mvn package</code> compiles the code, runs the tests and builds the jar.</p></div></li>
+        <li><div><b>Launch</b><p><code>run-app.bat</code> opens the app window; <code>run-applet.bat</code> runs it as a real applet in <code>appletviewer</code>.</p></div></li>
+      </ol>
+      <div class="table-scroll">
+        <table class="logins">
+          <thead><tr><th>Demo role</th><th>Username</th><th>Password</th></tr></thead>
+          <tbody>
+            <tr><td>Admin</td><td class="mono">admin</td><td class="mono">admin123</td></tr>
+            <tr><td>Farmer</td><td class="mono">farmer1</td><td class="mono">farm123</td></tr>
+            <tr><td>Distributor</td><td class="mono">dist1</td><td class="mono">dist123</td></tr>
+            <tr><td>Customer</td><td class="mono">cust1</td><td class="mono">cust123</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>Agricultural Supply Chain Management System · BTech OOP project · Shaurya Agarwal</span>
+    <span><a href="https://github.com/Shaurya-web548/agricultural-supply-chain">GitHub</a> · <a href="https://github.com/Shaurya-web548/agricultural-supply-chain/blob/main/docs/ARCHITECTURE.md">Architecture</a> · <a href="https://github.com/Shaurya-web548/agricultural-supply-chain/blob/main/docs/VIVA_QA.md">Viva Q&amp;A</a></span>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var root = document.documentElement;
+  var btn = document.getElementById('themeToggle');
+  try {
+    var saved = localStorage.getItem('theme');
+    if (saved === 'light' || saved === 'dark') { root.setAttribute('data-theme', saved); }
+  } catch (e) { /* storage unavailable: follow the system theme */ }
+  btn.addEventListener('click', function () {
+    var current = root.getAttribute('data-theme')
+      || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    var next = current === 'dark' ? 'light' : 'dark';
+    root.setAttribute('data-theme', next);
+    try { localStorage.setItem('theme', next); } catch (e) { /* ignore */ }
+  });
+})();
+</script>
+</body>
+</html>
