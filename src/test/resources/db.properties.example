@@ -1,0 +1,6 @@
+# Copy to db.properties (same folder). Tests use a SEPARATE database so
+# they never wipe your demo data. Maven puts test resources first on the
+# test classpath, so this file wins over src/main/resources/db.properties.
+db.url=jdbc:mysql://localhost:3306/agricultural_supply_chain_test?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+db.username=agri_app
+db.password=CHANGE_ME

@@ -1,0 +1,18 @@
+# Build output
+target/
+*.class
+
+# Local Maven install (see env.bat) - download it, don't commit it
+tools/
+
+# Real credentials stay local - commit only the .example files
+src/main/resources/db.properties
+src/test/resources/db.properties
+
+# IDE files
+.idea/
+*.iml
+.vscode/
+.classpath
+.project
+.settings/

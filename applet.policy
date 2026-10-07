@@ -1,0 +1,12 @@
+// Security policy for appletviewer (local college demo only).
+//
+// Applets run inside a sandbox that, by default, blocks the socket to
+// MySQL (port 3306). This grants full permissions ONLY to code loaded
+// from this project's target/ folder - the project jar and the MySQL
+// driver jar - and to nothing else. Run appletviewer from the project
+// root so ${user.dir} points here:
+//
+//   appletviewer -J-Djava.security.policy=applet.policy MainApplet.html
+grant codeBase "file:${user.dir}/target/-" {
+    permission java.security.AllPermission;
+};

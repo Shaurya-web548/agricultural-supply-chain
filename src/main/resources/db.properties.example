@@ -1,0 +1,6 @@
+# Copy this file to db.properties (same folder) and fill in your password.
+# db.properties is git-ignored so real credentials are never committed.
+# Any key can also be overridden with a JVM flag, e.g. -Ddb.password=secret
+db.url=jdbc:mysql://localhost:3306/agricultural_supply_chain?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+db.username=agri_app
+db.password=CHANGE_ME

@@ -1,0 +1,19 @@
+<!--
+  Launcher page for appletviewer (JDK 8 - the Applet API was removed later).
+  Run from the project root after "mvn package":
+
+    appletviewer -J-Djava.security.policy=applet.policy MainApplet.html
+
+  archive = the project jar (classes + db.properties) + the MySQL driver jar
+  that "mvn package" copies to target/lib.
+-->
+<html>
+<head><title>Agricultural Supply Chain Management System</title></head>
+<body>
+<applet code="com.agricsc.applet.MainApplet"
+        archive="target/agricultural-supply-chain-1.0.0.jar,target/lib/mysql-connector-j-8.0.33.jar"
+        width="1050" height="720">
+    Your environment cannot run Java applets. Use run-app.bat instead.
+</applet>
+</body>
+</html>
